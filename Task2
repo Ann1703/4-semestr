@@ -1,75 +1,72 @@
 import random
+from enum import Enum
 
 INF = float('inf')
 
-def fermat_test(num):
-    if num <= 1:
+class Algorithm(Enum):
+    FERMAT = '1'
+    SOLOVAY_STRASSEN = '2'
+    MILLER_RABIN = '3'
+
+def fermat(n):
+    if n <= 1:
         return False
     for _ in range(5):
-        a = random.randint(2, num-1)
-        if pow(a, num-1, num) != 1:
+        a = random.randint(2, n-1)
+        if pow(a, n-1, n) != 1:
             return False
     return True
 
-def solovay_test(num):
-    if num <= 1:
+def solovay_strassen(n):
+    if n <= 1:
         return False
     for _ in range(5):
-        a = random.randint(2, num-1)
-        x = pow(a, (num-1)//2, num)
-        if x != 1 and x != num-1:
+        a = random.randint(2, n-1)
+        x = pow(a, (n-1)//2, n)
+        if x != 1 and x != n-1:
             return False
     return True
 
-def miller_test(num):
-    if num <= 1:
+def miller_rabin(n):
+    if n <= 1:
         return False
     s = 0
-    d = num-1
+    d = n-1
     while d % 2 == 0:
         s += 1
         d //= 2
     for _ in range(5):
-        a = random.randint(2, num-2)
-        x = pow(a, d, num)
-        if x == 1 or x == num-1:
+        a = random.randint(2, n-2)
+        x = pow(a, d, n)
+        if x == 1 or x == n-1:
             continue
         for _ in range(s-1):
-            x = pow(x, 2, num)
-            if x == num-1:
+            x = pow(x, 2, n)
+            if x == n-1:
                 break
         else:
             return False
     return True
 
 def main():
-    menu_items = [
-        ("Ферма", fermat_test),
-        ("Соловей-Штрассен", solovay_test),
-        ("Миллер-Рабин", miller_test)
-    ]
+    print("Ферма")
+    print("Соловей-Штрассен")
+    print("Миллер-Рабин")
     
-    for i, (name, _) in enumerate(menu_items, 1):
-        print(f"{i} - {name}")
+    choice = input("Выбор: ")
+    n = int(input("Число: "))
     
-    try:
-        choice = int(input("Выбор: "))
-        num = int(input("Число: "))
-        
-        if choice == 1:
-            result = menu_items[0][1](num)
-        elif choice == 2:
-            result = menu_items[1][1](num)
-        elif choice == 3:
-            result = menu_items[2][1](num)
-        else:
-            print("Нет такого варианта")
-            return
-        
+    map = {
+        Algorithm.FERMAT.value: fermat,
+        Algorithm.SOLOVAY_STRASSEN.value: solovay_strassen,
+        Algorithm.MILLER_RABIN.value: miller_rabin
+    }
+    
+    if choice in map:
+        result = map[choice](n)
         print("Простое" if result else "Составное")
-        
-    except ValueError:
-        print("Нужно вводить числа")
+    else:
+        print("Неверный выбор")
 
 if __name__ == "__main__":
     main()
