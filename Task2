@@ -3,70 +3,92 @@ from enum import Enum
 
 INF = float('inf')
 
-class Algorithm(Enum):
-    FERMAT = '1'
-    SOLOVAY_STRASSEN = '2'
-    MILLER_RABIN = '3'
+class TestType(Enum):
+    FERMAT = 1
+    SOLOVAY_STRASSEN = 2
+    MILLER_RABIN = 3
 
-def fermat(n):
-    if n <= 1:
+def check_fermat(number):
+    if number <= 1:
         return False
-    for _ in range(5):
-        a = random.randint(2, n-1)
-        if pow(a, n-1, n) != 1:
+    for iteration in range(5):
+        random_value = random.randint(2, number - 1)
+        if pow(random_value, number - 1, number) != 1:
             return False
     return True
 
-def solovay_strassen(n):
-    if n <= 1:
+def check_solovay(number):
+    if number <= 1:
         return False
-    for _ in range(5):
-        a = random.randint(2, n-1)
-        x = pow(a, (n-1)//2, n)
-        if x != 1 and x != n-1:
+    for iteration in range(5):
+        random_value = random.randint(2, number - 1)
+        temp_result = pow(random_value, (number - 1) // 2, number)
+        if temp_result != 1 and temp_result != number - 1:
             return False
     return True
 
-def miller_rabin(n):
-    if n <= 1:
+def check_miller(number):
+    if number <= 1:
         return False
-    s = 0
-    d = n-1
-    while d % 2 == 0:
-        s += 1
-        d //= 2
-    for _ in range(5):
-        a = random.randint(2, n-2)
-        x = pow(a, d, n)
-        if x == 1 or x == n-1:
+    power_counter = 0
+    reduced_number = number - 1
+    while reduced_number % 2 == 0:
+        power_counter += 1
+        reduced_number //= 2
+    for iteration in range(5):
+        random_value = random.randint(2, number - 2)
+        current_value = pow(random_value, reduced_number, number)
+        if current_value == 1 or current_value == number - 1:
             continue
-        for _ in range(s-1):
-            x = pow(x, 2, n)
-            if x == n-1:
+        for inner_iteration in range(power_counter - 1):
+            current_value = pow(current_value, 2, number)
+            if current_value == number - 1:
                 break
         else:
             return False
     return True
 
-def main():
-    print("Ферма")
-    print("Соловей-Штрассен")
-    print("Миллер-Рабин")
+def process_selection(test_type, input_number):
     
-    choice = input("Выбор: ")
-    n = int(input("Число: "))
-    
-    map = {
-        Algorithm.FERMAT.value: fermat,
-        Algorithm.SOLOVAY_STRASSEN.value: solovay_strassen,
-        Algorithm.MILLER_RABIN.value: miller_rabin
-    }
-    
-    if choice in map:
-        result = map[choice](n)
-        print("Простое" if result else "Составное")
+    if test_type == TestType.FERMAT:
+        return check_fermat(input_number)
+    elif test_type == TestType.SOLOVAY_STRASSEN:
+        return check_solovay(input_number)
+    elif test_type == TestType.MILLER_RABIN:
+        return check_miller(input_number)
     else:
-        print("Неверный выбор")
+        return None
+
+def main_program():
+    test_types = [
+        (TestType.FERMAT, "Ферма"),
+        (TestType.SOLOVAY_STRASSEN, "Соловей-Штрассен"),
+        (TestType.MILLER_RABIN, "Миллер-Рабин")
+    ]
+    
+    for test_enum, test_name in test_types:
+        print(f"{test_enum.value} - {test_name}")
+    
+    try:
+        selected_value = int(input("Выбор: "))
+        target_number = int(input("Число: "))
+        
+        
+        selected_test = None
+        for test_enum, _ in test_types:
+            if test_enum.value == selected_value:
+                selected_test = test_enum
+                break
+        
+        if selected_test:
+            result = process_selection(selected_test, target_number)
+            print("Простое" if result else "Составное")
+        else:
+            print("Нет такого варианта")
+        
+    except ValueError:
+        print("Нужно вводить числа")
 
 if __name__ == "__main__":
-    main()
+    main_program()
+
